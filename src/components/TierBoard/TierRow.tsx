@@ -1,6 +1,6 @@
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { useDroppable } from '@dnd-kit/core'
 import { TierBadge } from './TierBadge'
-import { DropZone } from './DropZone'
 import { ConceptCard } from '@/components/ConceptCard/ConceptCard'
 import { useTierList } from '@/hooks/useTierList'
 import { cn } from '@/utils/cn'
@@ -25,12 +25,22 @@ export const TierRow = ({ tier, index }: TierRowProps) => {
   // Alternate row backgrounds
   const rowBg = index % 2 === 0 ? 'var(--color-surface)' : 'var(--color-base)'
 
+  // Make the entire row a droppable area (covers badge + drop zone)
+  const { setNodeRef, isOver } = useDroppable({ id: tier })
+
   return (
     <div
-      className={cn('tier-row', index % 2 === 0 && 'tier-row-even', index % 2 === 1 && 'tier-row-odd')}
+      ref={setNodeRef}
+      className={cn(
+        'tier-row',
+        index % 2 === 0 && 'tier-row-even',
+        index % 2 === 1 && 'tier-row-odd',
+        isOver && 'active'
+      )}
       style={{ backgroundColor: rowBg }}
       role="list"
       aria-label={`Tier ${tier}`}
+      data-tier={tier}
     >
       {/* Tier Badge - vertical rail */}
       <TierBadge tier={tier} style={{ backgroundColor: tierConfig?.color }} />
@@ -40,11 +50,19 @@ export const TierRow = ({ tier, index }: TierRowProps) => {
         items={tierConcepts.map(c => c.id)}
         strategy={verticalListSortingStrategy}
       >
-        <DropZone tier={tier} isEmpty={isEmpty}>
+        <div
+          className={cn(
+            'tier-drop-zone',
+            isEmpty && 'empty'
+          )}
+          data-tier={tier}
+          role="list"
+          aria-label={`Tier ${tier} drop zone`}
+        >
           {tierConcepts.map((concept, conceptIndex) => (
             <ConceptCard key={concept.id} concept={concept} index={conceptIndex} />
           ))}
-        </DropZone>
+        </div>
       </SortableContext>
     </div>
   )

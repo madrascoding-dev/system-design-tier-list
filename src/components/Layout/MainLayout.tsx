@@ -1,10 +1,11 @@
+import { useRef } from 'react'
 import { Header } from '@/components/Header/Header'
 import { TierBoard } from '@/components/TierBoard/TierBoard'
 import { UnrankedPool } from '@/components/UnrankedPool/UnrankedPool'
 import { ActionBar } from '@/components/ActionBar/ActionBar'
 import { DetailPanel } from '@/components/DetailPanel/DetailPanel'
 import { Container } from './Container'
-import { DndContext, closestCorners, DragOverlay } from '@dnd-kit/core'
+import { DndContext, rectIntersection, DragOverlay } from '@dnd-kit/core'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import { useTierList } from '@/hooks/useTierList'
 import { cn } from '@/utils/cn'
@@ -13,6 +14,7 @@ import type { Concept } from '@/types'
 export const MainLayout = () => {
   const { sensors, handleDragStart, handleDragOver, handleDragEnd } = useDragAndDrop()
   const { state } = useTierList()
+  const tierBoardRef = useRef<HTMLDivElement>(null)
 
   return (
     <div className="min-h-screen bg-base font-mono">
@@ -24,12 +26,12 @@ export const MainLayout = () => {
             onDragStart={handleDragStart}
             onDragOver={handleDragOver}
             onDragEnd={handleDragEnd}
-            collisionDetection={closestCorners}
+            collisionDetection={rectIntersection}
           >
             <div className="space-y-6">
-              <TierBoard />
+              <TierBoard ref={tierBoardRef} />
               <UnrankedPool />
-              <ActionBar />
+              <ActionBar tierBoardRef={tierBoardRef} />
             </div>
 
             <DragOverlay>

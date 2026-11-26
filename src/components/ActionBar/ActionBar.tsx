@@ -5,10 +5,13 @@ import { useTierList } from '@/hooks/useTierList'
 import { usePngExport } from '@/hooks/usePngExport'
 import { cn } from '@/utils/cn'
 
-export const ActionBar = () => {
+interface ActionBarProps {
+  tierBoardRef: React.RefObject<HTMLDivElement | null>
+}
+
+export const ActionBar = ({ tierBoardRef }: ActionBarProps) => {
   const { resetAll, state } = useTierList()
   const { exportAsPng } = usePngExport()
-  const tierBoardRef = React.useRef<HTMLDivElement>(null)
 
   const hasRankedConcepts = state.concepts.some((c) => c.tier !== 'unranked')
 
@@ -19,7 +22,7 @@ export const ActionBar = () => {
     } catch (error) {
       console.error('Failed to download PNG:', error)
     }
-  }, [exportAsPng])
+  }, [exportAsPng, tierBoardRef])
 
   // Listen for export event from header
   React.useEffect(() => {
@@ -36,7 +39,6 @@ export const ActionBar = () => {
 
   return (
     <div
-      ref={tierBoardRef}
       className={cn('stats-bar')}
       role="status"
       aria-live="polite"

@@ -17,7 +17,8 @@ export function useDragAndDrop() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 4,
+        distance: 8,
+        delay: 50,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -46,7 +47,9 @@ export function useDragAndDrop() {
     const activeConcept = state.concepts.find((c) => c.id === activeId)
     if (!activeConcept) return
 
-    const targetTier = overId as TierId | 'unranked'
+    // If dropped on a concept (not the tier drop zone), use that concept's tier as target
+    const overConcept = state.concepts.find((c) => c.id === overId)
+    const targetTier = (overConcept?.tier ?? overId) as TierId | 'unranked'
 
     const isSameTier = activeConcept.tier === targetTier
 
@@ -67,7 +70,6 @@ export function useDragAndDrop() {
         .filter((c) => c.tier === targetTier)
         .map((c) => c.id)
 
-      const overConcept = state.concepts.find((c) => c.id === overId)
       let insertIndex = targetTierConcepts.length
 
       if (overConcept && overConcept.tier === targetTier) {
